@@ -1,0 +1,40 @@
+version: '3'
+services:
+ api:
+   container_name: blog-api
+   build:
+     context: ./api
+     dockerfile: Dockerfile
+   command: sh -c "cd /api/blog && python3 manage.py runserver 0.0.0.0:8000"
+   ports:
+     - 8000:8000
+   volumes:
+     - ./api:/api
+   depends_on:
+     - db
+     - front
+   tty: true
+ db:
+   container_name: blog-db
+   image: mariadb:10.5
+   restart: always
+   environment:
+     MYSQL_DATABASE: blog
+     MYSQL_USER: root
+     MYSQL_PASSWORD: password
+     MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+   volumes:
+     - ./mysql:/var/lib/mysql
+   ports:
+     - 3306:3306
+ front:
+    container_name: blog-front
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: sh -c "cd /frontend/blog && npm start"
+    ports:
+     - "3000:3000"
+    volumes:
+     - ./frontend:/frontend
+    tty: true
